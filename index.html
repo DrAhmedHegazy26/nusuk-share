@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NUSUK SHARE | منصة مشاركة أكواد نسك المجتمعية</title>
+  <meta name="description" content="منصة مجتمعية ذكية لمشاركة وتوزيع أكواد نسك بعدالة وشفافية دون الحاجة للتسجيل." />
+  <meta name="theme-color" content="#0B3B36" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- QR Code & Chart.js Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="brand" onclick="showView('home')">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="#0B3B36"/>
+            <path d="M20 7L31 13.5V26.5L20 33L9 26.5V13.5L20 7Z" stroke="#D4AF37" stroke-width="2.5"/>
+            <circle cx="20" cy="20" r="4.5" fill="#D4AF37"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">NUSUK SHARE</span>
+          <span class="brand-sub" data-i18n="brandSub">منصة مشاركة الأكواد المجتمعية</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <button class="nav-btn active" onclick="showView('home')" data-i18n="navHome">الرئيسية</button>
+        <button class="nav-btn" onclick="showView('browse')" data-i18n="navBrowse">تصفح الأكواد</button>
+        <button class="nav-btn" onclick="showView('leaderboard')" data-i18n="navLeaderboard">لوحة المتصدرين</button>
+        <button class="nav-btn" onclick="showView('history')" data-i18n="navHistory">سجلي</button>
+        <button class="nav-btn" id="navProfileBtn" onclick="openAccountModal()" data-i18n="navAccount">حساب المساهم</button>
+        <button class="nav-btn admin-link hidden" id="navAdminBtn" onclick="showView('admin')" data-i18n="navAdmin">لوحة الإدارة</button>
+      </nav>
+
+      <div class="nav-controls">
+        <button class="icon-btn" id="installPwaBtn" style="display:none;" title="تثبيت التطبيق">📲</button>
+        <button class="icon-btn" onclick="toggleLang()" id="langToggle" aria-label="Switch Language">EN</button>
+        <button class="icon-btn" onclick="toggleTheme()" id="themeToggle" aria-label="Toggle Dark Mode">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main id="appMain">
+
+    <!-- ==================== VIEW: HOME ==================== -->
+    <section id="view-home" class="view active">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container hero-grid">
+          <div class="hero-content">
+            <span class="badge-gold" data-i18n="heroBadge">مجتمع تعاوني مفتوح • بدون تسجيل إلزامي</span>
+            <h1 data-i18n="heroTitle">شارك واحصل على أكواد نسك بذكاء وعدالة</h1>
+            <p data-i18n="heroDesc">
+              منصة مجتمعية لتبادل الأكواد وتوزيعها بخوارزمية ذكية تضمن العدالة وتمنع التكرار، مع تقييمات حية من المستخدمين ورموز QR فورية.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-gold btn-lg" onclick="getSmartCode()" data-i18n="btnGetCode">
+                ✨ احصل على كود الآن
+              </button>
+              <button class="btn btn-outline-light btn-lg" onclick="openSubmitModal()" data-i18n="btnAddCode">
+                ➕ أضف كودك للمجتمع
+              </button>
+            </div>
+            <p class="disclaimer-mini" data-i18n="heroDisclaimer">
+              * تنبيه: المنصة مبادرة مجتمعية مستقلة، وحالات الأكواد تعكس تجارب المستخدمين وليست ضماناً رسمياً.
+            </p>
+          </div>
+
+          <!-- Instant Recommended Code Spotlight Card -->
+          <div class="hero-card" id="smartSpotlightCard">
+            <div class="spotlight-header">
+              <span class="pill pill-approved" data-i18n="smartPickLabel">ترشيح التوزيع الذكي</span>
+              <button class="btn-text" onclick="getSmartCode()" data-i18n="btnAnotherCode">🔄 كود آخر</button>
+            </div>
+            <div id="spotlightBody" class="spotlight-body">
+              <div class="skeleton-loader">جاري تحميل الترشيح الذكي...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Community Statistics Strip -->
+      <section class="stats-strip container">
+        <div class="stat-card">
+          <div class="stat-num" id="statApproved">0</div>
+          <div class="stat-label" data-i18n="statApproved">كود معتمد للنشر</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statCopies">0</div>
+          <div class="stat-label" data-i18n="statCopies">مرة نسخ</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statSuccess">0</div>
+          <div class="stat-label" data-i18n="statSuccess">بلاغ نجاح مجتمعي</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statContributors">0</div>
+          <div class="stat-label" data-i18n="statContributors">مساهم نشط</div>
+        </div>
+      </section>
+
+      <!-- Quick Search Bar -->
+      <section class="container search-banner">
+        <div class="search-box">
+          <input type="text" id="homeSearchInput" placeholder="ابحث برمز الكود أو الوصف أو اسم المساهم..." oninput="handleHomeSearch(this.value)" />
+          <button class="btn btn-primary" onclick="showView('browse')" data-i18n="btnBrowseAll">عرض الكل</button>
+        </div>
+      </section>
+
+      <!-- Latest & Most Copied Dual Grid -->
+      <section class="container dual-lists">
+        <div>
+          <div class="section-head">
+            <h2 data-i18n="latestTitle">أحدث الأكواد المضافة</h2>
+            <button class="btn-text" onclick="showView('browse', 'newest')" data-i18n="seeAll">المزيد ←</button>
+          </div>
+          <div id="latestCodesList" class="cards-stack"></div>
+        </div>
+
+        <div>
+          <div class="section-head">
+            <h2 data-i18n="popularTitle">الأكثر نسخاً وتفاعلاً</h2>
+            <button class="btn-text" onclick="showView('browse', 'most_copied')" data-i18n="seeAll">المزيد ←</button>
+          </div>
+          <div id="popularCodesList" class="cards-stack"></div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section class="container section-block">
+        <h2 class="center-title" data-i18n="howTitle">كيف تعمل منصة NUSUK SHARE؟</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3 data-i18n="step1Title">احصل على كود بنقرة</h3>
+            <p data-i18n="step1Desc">تختار الخوارزمية الذكية كوداً معتمداً لم يظهر لك مؤخراً لضمان عدالة التوزيع بين جميع المساهمين.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3 data-i18n="step2Title">انسخ أو شارك عبر QR</h3>
+            <p data-i18n="step2Desc">انسخ الكود بلمسة واحدة أو شاركه عبر واتساب وتيليجرام أو امسح رمز الاستجابة السريعة (QR).</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3 data-i18n="step3Title">قيّم وساهم بكودك</h3>
+            <p data-i18n="step3Desc">أبلغ المجتمع إذا نجح الكود معك أو واجهت مشكلة، وأضف أكوادك لتساعد غيرك وترفع نقاطك.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ & Nusuk Assistant -->
+      <section class="container section-block">
+        <div class="assistant-box">
+          <div class="assistant-header">
+            <h2 data-i18n="assistantTitle">🤖 مساعد NUSUK SHARE الذكي والأسئلة الشائعة</h2>
+            <p data-i18n="assistantSub">اختر سؤالاً للحصول على إجابة فورية حول آلية عمل المنصة:</p>
+          </div>
+          <div class="assistant-chips">
+            <button class="chip" onclick="askAssistant('use')">كيف أستخدم الكود؟</button>
+            <button class="chip" onclick="askAssistant('submit')">كيف أضيف كوداً جديداً؟</button>
+            <button class="chip" onclick="askAssistant('statuses')">ماذا تعني حالات الأكواد؟</button>
+            <button class="chip" onclick="askAssistant('official')">هل المنصة تابعة لتطبيق نسك الرسمي؟</button>
+          </div>
+          <div id="assistantAnswer" class="assistant-reply">
+            مرحباً بك! اضغط على أي سؤال أعلاه لمعرفة طريقة استخدام المنصة، معاني الحالات، أو كيفية المساهمة.
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================== VIEW: BROWSE ALL CODES ==================== -->
+    <section id="view-browse" class="view">
+      <div class="container section-block">
+        <div class="section-head">
+          <h1 data-i18n="browseTitle">دليل الأكواد المعتمدة</h1>
+          <button class="btn btn-gold" onclick="openSubmitModal()" data-i18n="btnAddCode">➕ أضف كودك</button>
+        </div>
+
+        <div class="filters-bar">
+          <input type="text" id="browseSearch" placeholder="بحث بالكود أو الوصف..." oninput="renderBrowseList()" />
+          <select id="browseFeedbackFilter" onchange="renderBrowseList()">
+            <option value="all">كل التقييمات المجتمعية</option>
+            <option value="worked">أكواد أبلغ المستخدمون بنجاحها</option>
+            <option value="clean">بدون بلاغات مشاكل</option>
+          </select>
+          <select id="browseSort" onchange="renderBrowseList()">
+            <option value="smart">التوزيع الذكي العادل</option>
+            <option value="newest">الأحدث نشراً</option>
+            <option value="oldest">الأقدم نشراً</option>
+            <option value="most_copied">الأكثر نسخاً</option>
+          </select>
+        </div>
+
+        <div id="browseCodesGrid" class="codes-grid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW: LEADERBOARD ==================== -->
+    <section id="view-leaderboard" class="view">
+      <div class="container section-block">
+        <div class="section-head">
+          <h1 data-i18n="lbTitle">🏆 لوحة شرف المساهمين</h1>
+          <button class="btn btn-primary" onclick="openAccountModal()" data-i18n="joinContributors">انضم للمساهمين</button>
+        </div>
+        <p class="muted-text" data-i18n="lbSub">يتم احتساب النقاط تلقائياً عند اعتماد الأكواد المرسلة وتأكيد نجاحها من المجتمع.</p>
+        <div id="leaderboardContainer" class="leaderboard-list"></div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW: PERSONAL HISTORY ==================== -->
+    <section id="view-history" class="view">
+      <div class="container section-block">
+        <div class="section-head">
+          <h1 data-i18n="histTitle">🕒 سجل الأكواد الخاص بي</h1>
+          <button class="btn btn-outline" onclick="clearLocalHistory()" data-i18n="clearHist">مسح السجل المحلي</button>
+        </div>
+        <p class="muted-text" data-i18n="histSub">يُحفظ سجل الأكواد التي نسختها أو أرسلتها في متصفحك محلياً، ويُربط بحسابك عند تسجيل الدخول.</p>
+        <div id="historyContainer" class="codes-grid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW: ADMIN DASHBOARD ==================== -->
+    <section id="view-admin" class="view">
+      <div class="container section-block">
+        <div class="section-head">
+          <div>
+            <h1>🛡️ لوحة الإدارة والتحكم (RBAC)</h1>
+            <span class="badge-gold" id="adminRoleBadge">Role: Moderator</span>
+          </div>
+          <div class="admin-actions-top">
+            <button class="btn btn-outline" onclick="exportCodesCsv()">📥 تصدير CSV</button>
+            <button class="btn btn-outline" id="btnDbBackup" onclick="triggerBackup()">💾 نسخة احتياطية</button>
+            <button class="btn btn-primary" onclick="loadAdminDashboard()">🔄 تحديث</button>
+          </div>
+        </div>
+
+        <!-- Admin KPI Cards -->
+        <div class="admin-kpis" id="adminKpis"></div>
+
+        <!-- Chart.js Analytics -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>توزيع حالات الأكواد</h3>
+            <canvas id="statusPieChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>نشاط الإرسال اليومي</h3>
+            <canvas id="dailyTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Admin Tabs -->
+        <div class="admin-tabs">
+          <button class="tab-btn active" onclick="switchAdminTab('codes', this)">إدارة الأكواد</button>
+          <button class="tab-btn" onclick="switchAdminTab('reports', this)">مراجعة البلاغات</button>
+          <button class="tab-btn" id="tabUsersBtn" onclick="switchAdminTab('users', this)">المساهمون والصلاحيات</button>
+          <button class="tab-btn" id="tabLogsBtn" onclick="switchAdminTab('logs', this)">سجل النشاط</button>
+          <button class="tab-btn" id="tabSettingsBtn" onclick="switchAdminTab('settings', this)">إعدادات المنصة</button>
+        </div>
+
+        <div id="adminTabContent" class="admin-table-wrap"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Submit Code Modal -->
+  <div id="submitModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 data-i18n="submitModalTitle">إضافة كود جديد للمجتمع</h3>
+        <button class="close-btn" onclick="closeModal('submitModal')">✕</button>
+      </div>
+      <form id="submitCodeForm" onsubmit="handleCodeSubmit(event)">
+        <label>رمز الكود (مطلوب) *</label>
+        <input type="text" id="inputCodeValue" required maxlength="32" placeholder="مثال: NSK-84920" />
+
+        <label>عنوان مختصر (اختياري)</label>
+        <input type="text" id="inputCodeTitle" maxlength="80" placeholder="مثال: كود فعال اليوم" />
+
+        <label>اسم المساهم (اختياري)</label>
+        <input type="text" id="inputContributorName" maxlength="40" placeholder="يظهر كـ (زائر كريم) إذا تُرك فارغاً" />
+
+        <label>ملاحظات إضافية (اختياري)</label>
+        <textarea id="inputCodeNotes" rows="2" maxlength="240" placeholder="أي تفاصيل تفيد المستخدمين..."></textarea>
+
+        <div class="info-note">
+          يخضع الكود لفحص التكرار والمراجعة الإدارية قبل ظهوره للعامة.
+        </div>
+        <button type="submit" class="btn btn-gold btn-block" id="submitCodeBtn">إرسال الكود للمراجعة</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- QR & Share Modal -->
+  <div id="qrModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card center-text">
+      <div class="modal-head">
+        <h3>مشاركة الكود ورمز QR</h3>
+        <button class="close-btn" onclick="closeModal('qrModal')">✕</button>
+      </div>
+      <div class="qr-code-display" id="qrCodeValueText"></div>
+      <div id="qrcodeContainer" class="qr-box"></div>
+      <p class="muted-text" id="qrShareUrlText"></p>
+      <div class="share-buttons-row">
+        <button class="btn btn-primary" onclick="copyCurrentModalCode()">📋 نسخ الكود</button>
+        <button class="btn btn-whatsapp" onclick="shareExternal('whatsapp')">واتساب</button>
+        <button class="btn btn-telegram" onclick="shareExternal('telegram')">تيليجرام</button>
+        <button class="btn btn-outline" onclick="shareNative()">مشاركة الرابط</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Code Modal -->
+  <div id="reportModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>تقييم أو الإبلاغ عن كود</h3>
+        <button class="close-btn" onclick="closeModal('reportModal')">✕</button>
+      </div>
+      <form onsubmit="handleReportSubmit(event)">
+        <input type="hidden" id="reportCodeId" />
+        <label>حالة تجربتك مع الكود *</label>
+        <select id="reportType" required>
+          <option value="worked">✅ الكود عمل بنجاح (إفادة مجتمعية)</option>
+          <option value="failed">❌ الكود لم يعمل / منتهي</option>
+          <option value="duplicate">♻️ كود مكرر</option>
+          <option value="inappropriate">⚠️ محتوى غير لائق</option>
+        </select>
+
+        <label>تفاصيل إضافية (اختياري)</label>
+        <textarea id="reportReason" rows="2" maxlength="200" placeholder="اكتب ملاحظتك هنا..."></textarea>
+
+        <button type="submit" class="btn btn-primary btn-block">إرسال التقييم</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Contributor / Admin Account Modal -->
+  <div id="accountModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="accountModalTitle">حساب المساهم / دخول الإدارة</h3>
+        <button class="close-btn" onclick="closeModal('accountModal')">✕</button>
+      </div>
+
+      <div id="loggedOutForms">
+        <div class="auth-switch">
+          <button class="tab-btn active" onclick="toggleAuthMode('login', this)">تسجيل الدخول</button>
+          <button class="tab-btn" onclick="toggleAuthMode('register', this)">حساب مساهم جديد</button>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <label>اسم المستخدم</label>
+          <input type="text" id="loginUsername" required />
+          <label>كلمة المرور</label>
+          <input type="password" id="loginPassword" required />
+          <button type="submit" class="btn btn-primary btn-block">دخول</button>
+        </form>
+
+        <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+          <label>اسم المستخدم (إنجليزي بدون مسافات)</label>
+          <input type="text" id="regUsername" required pattern="[a-zA-Z0-9_]{3,20}" />
+          <label>الاسم الظاهر في لوحة الشرف</label>
+          <input type="text" id="regDisplayName" required />
+          <label>البريد الإلكتروني (اختياري)</label>
+          <input type="email" id="regEmail" />
+          <label>كلمة المرور (6 أحرف على الأقل)</label>
+          <input type="password" id="regPassword" required minlength="6" />
+          <button type="submit" class="btn btn-gold btn-block">إنشاء حساب مساهم</button>
+        </form>
+      </div>
+
+      <div id="loggedInProfile" class="hidden"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>NUSUK SHARE</strong>
+        <p data-i18n="footerAbout">منصة مجتمعية مفتوحة لتبادل ومشاركة أكواد نسك بعدالة وشفافية.</p>
+      </div>
+      <div>
+        <strong data-i18n="footerPolicyTitle">الخصوصية وإخلاء المسؤولية</strong>
+        <p data-i18n="footerPolicyText">
+          لا تتطلب المنصة تسجيل دخول للزوار. هذا الموقع مبادرة مجتمعية مستقلة ولا يتبع رسمياً وزارة الحج والعمرة أو تطبيق نسك الرسمي، كما لا نضمن صلاحية الأكواد المنشورة من قبل المستخدمين.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
