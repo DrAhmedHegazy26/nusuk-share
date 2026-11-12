@@ -1,0 +1,17 @@
+{
+  "name": "NUSUK SHARE - منصة مشاركة أكواد نسك",
+  "short_name": "NUSUK SHARE",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#072A26",
+  "theme_color": "#0B3B36",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%230B3B36'/%3E%3Cpath d='M96 34L149 65V127L96 158L43 127V65L96 34Z' stroke='%23D4AF37' stroke-width='12' fill='none'/%3E%3Ccircle cx='96' cy='96' r='22' fill='%23D4AF37'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
